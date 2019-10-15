@@ -10,7 +10,7 @@ SDL_Texture* carregaImagem(const char *imagem, SDL_Renderer *renderizador){
     return textura;
 }
 
-void imprimeMapa(Componentes fogo, Componentes bomba, Componentes caixa, Componentes parede, Componentes fundo, Personagem player, Personagem bot, SDL_Renderer *renderizador, int mapa[13][15], int mapaBomba[13][15]){
+void imprimeMapa(Componentes fogo, Componentes caixa, Componentes parede, Componentes fundo, Personagem player1, Personagem player2, SDL_Renderer *renderizador, int mapa[13][15], int mapaBomba[13][15]){
     SDL_RenderCopy(renderizador, fundo.imagem, &fundo.posicao.origem, &fundo.posicao.destino);
     int posicaoY;
     int posicaoX;
@@ -27,16 +27,20 @@ void imprimeMapa(Componentes fogo, Componentes bomba, Componentes caixa, Compone
                 SDL_RenderCopy(renderizador, caixa.imagem, &caixa.posicao.origem, &caixa.posicao.destino);
             }
             else if(mapa[i][j] == PLAYER1){
-                player.posicao.destino = {posicaoX, posicaoY, 40, 40};
-                SDL_RenderCopy(renderizador, player.imagem, &player.posicao.origem, &player.posicao.destino);
+                player1.posicao.destino = {posicaoX, posicaoY, 40, 40};
+                SDL_RenderCopy(renderizador, player1.imagem, &player1.posicao.origem, &player1.posicao.destino);
             }
-            else if(mapa[i][j] == BOT){
-                bot.posicao.destino = {posicaoX, posicaoY, 40, 40};
-                SDL_RenderCopy(renderizador, bot.imagem, &bot.posicao.origem, &bot.posicao.destino);
+            else if(mapa[i][j] == PLAYER2){
+                player2.posicao.destino = {posicaoX, posicaoY, 40, 40};
+                SDL_RenderCopy(renderizador, player2.imagem, &player2.posicao.origem, &player2.posicao.destino);
             }
-            else if(mapaBomba[i][j] == BOMBA){
-                bomba.posicao.destino = {posicaoX, posicaoY, 40, 40};
-                SDL_RenderCopy(renderizador, bomba.imagem, &bomba.posicao.origem, &bomba.posicao.destino);
+            else if(mapaBomba[i][j] == BOMBA1){
+                player1.bomba.posicao.destino = {posicaoX, posicaoY, 40, 40};
+                SDL_RenderCopy(renderizador, player1.bomba.imagem, &player1.bomba.posicao.origem, &player1.bomba.posicao.destino);
+            }
+            else if(mapaBomba[i][j] == BOMBA2){
+                player2.bomba.posicao.destino = {posicaoX, posicaoY, 40, 40};
+                SDL_RenderCopy(renderizador, player2.bomba.imagem, &player2.bomba.posicao.origem, &player2.bomba.posicao.destino);
             }
             else if(mapaBomba[i][j] == FOGO){
                 fogo.posicao.destino = {posicaoX, posicaoY, 40, 40};
@@ -49,23 +53,23 @@ void imprimeMapa(Componentes fogo, Componentes bomba, Componentes caixa, Compone
     SDL_Delay(1000/40);
 }
 
-void validaMovimento(int mapa[13][15], int indiceX, int indiceY, int adicionalX, int adicionalY){
+void validaMovimento(int mapa[13][15], int indiceX, int indiceY, int adicionalX, int adicionalY, int player){
     if(mapa[indiceX + adicionalX][indiceY + adicionalY] == VAZIO){
-        mapa[indiceX + adicionalX][indiceY + adicionalY] = PLAYER1;
+        mapa[indiceX + adicionalX][indiceY + adicionalY] = player;
         mapa[indiceX][indiceY] = VAZIO;
     }
 }
 
 void plantaBomba(Personagem &player, int mapaBomba[13][15], long int &tempoBomba, int indiceX, int indiceY){
-    if(player.bombas != 0 and player.bomba == false){
-        player.bomba = true;
-        mapaBomba[indiceX][indiceY] = BOMBA;
-        player.bombas -= 1;
+    if(player.bomba.quantidade != 0 and player.bomba.plantada == false){
+        player.bomba.plantada = true;
+        mapaBomba[indiceX][indiceY] = player.bomba.valorMapa;
+        player.bomba.quantidade -= 1;
         tempoBomba = SDL_GetTicks();
     }
 }
 
-void movimentaPersonagem(bool &termina, long int &tempoBomba, Personagem &player, int mapa[13][15], int mapaBomba[13][15]){
+void movimentaPlayers(bool &termina, long int &tempoBomba, Personagem &player, long int &tempoBomba2, Personagem &player2, int mapa[13][15], int mapaBomba[13][15]){
     SDL_Event evento;
     int indiceX = 0;
     int indiceY = 0;
@@ -74,6 +78,16 @@ void movimentaPersonagem(bool &termina, long int &tempoBomba, Personagem &player
             if(mapa[i][j] == PLAYER1){
                 indiceX = i;
                 indiceY = j;
+            }
+        }
+    }
+    int indiceX2 = 0;
+    int indiceY2 = 0;
+    for (int i = 0; i < 13; ++i) {
+        for (int j = 0; j < 15; ++j) {
+            if(mapa[i][j] == PLAYER2){
+                indiceX2 = i;
+                indiceY2 = j;
             }
         }
     }
@@ -87,114 +101,169 @@ void movimentaPersonagem(bool &termina, long int &tempoBomba, Personagem &player
             }
             if(evento.key.keysym.sym == SDLK_s){
                 player.posicao.origem = {32, 0, 32, 32};
-                validaMovimento(mapa, indiceX, indiceY, 1, 0);
+                validaMovimento(mapa, indiceX, indiceY, 1, 0, PLAYER1);
                 break;
             }
             else if(evento.key.keysym.sym == SDLK_w){
                 player.posicao.origem = {32, 96, 32, 32};
-                validaMovimento(mapa, indiceX, indiceY, -1, 0);
+                validaMovimento(mapa, indiceX, indiceY, -1, 0, PLAYER1);
                 break;
             }
             else if(evento.key.keysym.sym == SDLK_a){
                 player.posicao.origem = {32, 32, 32, 32};
-                validaMovimento(mapa, indiceX, indiceY, 0, -1);
+                validaMovimento(mapa, indiceX, indiceY, 0, -1, PLAYER1);
                 break;
             }
             else if(evento.key.keysym.sym == SDLK_d){
                 player.posicao.origem = {32, 64, 32, 32};
-                validaMovimento(mapa, indiceX, indiceY, 0, 1);
+                validaMovimento(mapa, indiceX, indiceY, 0, 1, PLAYER1);
+                break;
+            }
+            if(evento.key.keysym.sym == SDLK_KP_4){
+                plantaBomba(player2, mapaBomba, tempoBomba2, indiceX2, indiceY2);
+            }
+            if(evento.key.keysym.sym == SDLK_KP_2){
+                player2.posicao.origem = {128, 0, 32, 32};
+                validaMovimento(mapa, indiceX2, indiceY2, 1, 0, PLAYER2);
+                break;
+            }
+            else if(evento.key.keysym.sym == SDLK_KP_5){
+                player2.posicao.origem = {128, 96, 32, 32};
+                validaMovimento(mapa, indiceX2, indiceY2, -1, 0, PLAYER2);
+                break;
+            }
+            else if(evento.key.keysym.sym == SDLK_KP_1){
+                player2.posicao.origem = {128, 32, 32, 32};
+                validaMovimento(mapa, indiceX2, indiceY2, 0, -1, PLAYER2);
+                break;
+            }
+            else if(evento.key.keysym.sym == SDLK_KP_3){
+                player2.posicao.origem = {128, 64, 32, 32};
+                validaMovimento(mapa, indiceX2, indiceY2, 0, 1, PLAYER2);
                 break;
             }
         }
     }
 }
 
-void movimentaBot(int mapa[13][15], Personagem &bot, int mapaBomba[13][15]){
+void movimentaPlayer2(bool &termina, long int &tempoBomba2, Personagem &player2, int mapa[13][15], int mapaBomba[13][15]){
+    SDL_Event evento;
+    int indiceX = 0;
+    int indiceY = 0;
+    for (int i = 0; i < 13; ++i) {
+        for (int j = 0; j < 15; ++j) {
+            if(mapa[i][j] == PLAYER2){
+                indiceX = i;
+                indiceY = j;
+            }
+        }
+    }
+    while(SDL_PollEvent(&evento)){
+        if(evento.type == SDL_QUIT){
+            termina = true;
+        }
+        else if(evento.type == SDL_KEYDOWN){
+            if(evento.key.keysym.sym == SDLK_KP_4){
+                plantaBomba(player2, mapaBomba, tempoBomba2, indiceX, indiceY);
+            }
+            if(evento.key.keysym.sym == SDLK_KP_2){
+                player2.posicao.origem = {128, 0, 32, 32};
+                validaMovimento(mapa, indiceX, indiceY, 1, 0, PLAYER2);
+                break;
+            }
+            else if(evento.key.keysym.sym == SDLK_KP_5){
+                player2.posicao.origem = {128, 96, 32, 32};
+                validaMovimento(mapa, indiceX, indiceY, -1, 0, PLAYER2);
+                break;
+            }
+            else if(evento.key.keysym.sym == SDLK_KP_1){
+                player2.posicao.origem = {128, 32, 32, 32};
+                validaMovimento(mapa, indiceX, indiceY, 0, -1, PLAYER2);
+                break;
+            }
+            else if(evento.key.keysym.sym == SDLK_KP_3){
+                player2.posicao.origem = {128, 64, 32, 32};
+                validaMovimento(mapa, indiceX, indiceY, 0, 1, PLAYER2);
+                break;
+            }
+        }
+    }
+}
+
+void movimentaBot(int mapa[13][15], Personagem &bot){
     int direcao = rand()%4;
     int passos = rand() % 15 + 3;
-    cout << direcao << endl;
     int cont = 1;
     while(cont < passos){
         for (int i = 0; i < 13; ++i) {
             for (int j = 0; j < 15; ++j) {
-                if(mapa[i][j] == BOT){
+                if(mapa[i][j] == PLAYER2){
                     if(direcao == 0){ // DIREITA
-                        if(mapa[i][j+1] == VAZIO){
-                            bot.posicao.origem = {128, 0, 32, 32};
-                            mapa[i][j+1] = BOT;
-                            mapa[i][j] = VAZIO;
-                        }
+                        validaMovimento(mapa, i, j, 0, 1, PLAYER2);
+                        bot.posicao.origem = {128, 0, 32, 32};
                     }
                     else if(direcao == 1){ // ESQUERDA
-                        if(mapa[i][j-1] == VAZIO){
-                            bot.posicao.origem = {128, 32, 32, 32};
-                            mapa[i][j-1] = BOT;
-                            mapa[i][j] = VAZIO;
-                        }
+                        validaMovimento(mapa, i, j, 0, -1, PLAYER2);
+                        bot.posicao.origem = {128, 32, 32, 32};
                     }
                     else if(direcao == 2){ // CIMA
-                        if(mapa[i-1][j] == VAZIO){
-                            bot.posicao.origem = {128, 96, 32, 32};
-                            mapa[i-1][j] = BOT;
-                            mapa[i][j] = VAZIO;
-                        }
+                        validaMovimento(mapa, i, j, -1, 0, PLAYER2);
+                        bot.posicao.origem = {128, 96, 32, 32};
                     }
                     else if(direcao == 3){ // BAIXO
-                        if(mapa[i+1][j] == VAZIO){
-                            bot.posicao.origem = {128, 64, 32, 32};
-                            mapa[i+1][j] = BOT;
-                            mapa[i][j] = VAZIO;
-                        }
+                        validaMovimento(mapa, i, j, 1, 0, PLAYER2);
+                        bot.posicao.origem = {128, 64, 32, 32};
                     }
                 }
             }
         }
         cont++;
     }
+
 }
 
-void bombaAnimacao(Componentes &bomba, long int tempoInicio, long int tempoAtual){
+void bombaAnimacao(Personagem &player, long int tempoInicio, long int tempoAtual){
     if(tempoAtual - tempoInicio == 100 ){
-        bomba.posicao.origem = {22, 0, 22, 22};
+        player.bomba.posicao.origem = {22, 0, 22, 22};
     }
     else if(tempoAtual - tempoInicio < 200){
-        bomba.posicao.origem = {44, 0, 22, 22};
+        player.bomba.posicao.origem = {44, 0, 22, 22};
     }
     else if(tempoAtual - tempoInicio < 300 ){
-        bomba.posicao.origem = {66, 0, 22, 22};
+        player.bomba.posicao.origem = {66, 0, 22, 22};
     }
     else if(tempoAtual - tempoInicio < 400 ){
-        bomba.posicao.origem = {88, 0, 22, 22};
+        player.bomba.posicao.origem = {88, 0, 22, 22};
     }
     else if(tempoAtual - tempoInicio < 500 ){
-        bomba.posicao.origem = {110, 0, 22, 22};
+        player.bomba.posicao.origem = {110, 0, 22, 22};
     }
     else if(tempoAtual - tempoInicio < 700 ){
-        bomba.posicao.origem = {132, 0, 22, 22};
+        player.bomba.posicao.origem = {132, 0, 22, 22};
     }
     else if(tempoAtual - tempoInicio < 800 ){
-        bomba.posicao.origem = {154, 0, 22, 22};
+        player.bomba.posicao.origem = {154, 0, 22, 22};
     }
     else if(tempoAtual - tempoInicio < 900 ){
-        bomba.posicao.origem = {176, 0, 22, 22};
+        player.bomba.posicao.origem = {176, 0, 22, 22};
     }
     else if(tempoAtual - tempoInicio < 1000 ){
-        bomba.posicao.origem = {198, 0, 22, 22};
+        player.bomba.posicao.origem = {198, 0, 22, 22};
     }
     else if(tempoAtual - tempoInicio < 1100 ){
-        bomba.posicao.origem = {220, 0, 22, 22};
+        player.bomba.posicao.origem = {220, 0, 22, 22};
     }
     else if(tempoAtual - tempoInicio < 1200 ){
-        bomba.posicao.origem = {198, 0, 22, 22};
+        player.bomba.posicao.origem = {198, 0, 22, 22};
     }
     else if(tempoAtual - tempoInicio < 1300 ){
-        bomba.posicao.origem = {220, 0, 22, 22};
+        player.bomba.posicao.origem = {220, 0, 22, 22};
     }
     else if(tempoAtual - tempoInicio < 1400 ){
-        bomba.posicao.origem = {198, 0, 22, 22};
+        player.bomba.posicao.origem = {198, 0, 22, 22};
     }
     else if(tempoAtual - tempoInicio < 1500 ){
-        bomba.posicao.origem = {220, 0, 22, 22};
+        player.bomba.posicao.origem = {220, 0, 22, 22};
     }
 }
 
@@ -215,11 +284,11 @@ void validaExplosao(int mapa[13][15], int mapaBomba[13][15], int indiceX, int in
     }
 }
 
-bool explodeBomba(long int tempoInicio, int mapa[13][15], int mapaBomba[13][15], long int tempoAtual){
+void explodeBomba(Personagem player, long int tempoInicio, long int tempoAtual, int mapa[13][15], int mapaBomba[13][15]){
     if(tempoAtual - tempoInicio > 1500 ){ // milisegundos
         for (int i = 0; i < 13; ++i) {
             for (int j = 0; j < 15; ++j) {
-                if(mapaBomba[i][j] == BOMBA){
+                if(mapaBomba[i][j] == player.bomba.valorMapa){
                     mapaBomba[i][j] = FOGO;
                     validaExplosao(mapa, mapaBomba, i, j, 0, 1); // DIREITA
                     validaExplosao(mapa, mapaBomba, i, j, 0, -1); // ESQUERDA
@@ -228,31 +297,25 @@ bool explodeBomba(long int tempoInicio, int mapa[13][15], int mapaBomba[13][15],
                 }
             }
         }
-        return true;
-    }
-    else{
-        return false;
     }
 }
 
 void verificaVidaPlayer(int mapa[13][15], int mapaBomba[13][15], Personagem &player){
     for (int i = 0; i < 13; ++i) {
         for (int j = 0; j < 15; ++j) {
-            if(mapa[i][j] == PLAYER1 and mapaBomba[i][j] == FOGO){
-                if(player.vida == 1){
+            if(mapa[i][j] == player.valorMapa and mapaBomba[i][j] == FOGO){
+                if(player.vida == 0){
                     mapa[i][j] = VAZIO;
                 }
                 else{
-                    player.vida -= 1;
+                    player.dano += 1;
                 }
             }
         }
     }
-    //cout << player1.vida << endl;
-    /*if(mapa[i][j] == PLAYER1 and player1.vida == 0){
-        mapa[i][j] = VAZIO;
-    }*/
-    //cout << "TESTE" << endl;
+    if(player.dano == 1){
+        player.vida -= 1;
+    }
 }
 
 bool limpaExplosao(int mapaBomba[13][15], long int tempoInicio, long int tempoAtual){
