@@ -37,7 +37,7 @@ int main()
                         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
-    Componentes fundo, caixa, parede, bomba, fogo;
+    Componentes fundo, caixa, parede, fogo;
     fundo.imagem = carregaImagem("assets/fundo.bmp", renderizador);
     fundo.posicao.origem = {0, 0, 600, 600};
     fundo.posicao.destino = {0, 0, 600, 600};
@@ -48,9 +48,6 @@ int main()
     parede.imagem = carregaImagem("assets/parede.bmp", renderizador);
     parede.posicao.origem = {0, 0, 64, 64};
 
-    bomba.imagem = carregaImagem("assets/bombaAzulSprite.bmp", renderizador);
-    bomba.posicao.origem = {0, 0, 22, 22};
-
     fogo.imagem = carregaImagem("assets/fogo2.bmp", renderizador);
     fogo.posicao.origem = {0, 0, 40, 40};
 
@@ -58,37 +55,62 @@ int main()
     Personagem player1;
     player1.imagem = personagens;
     player1.posicao.origem = {32, 0, 32, 32};
+    player1.bomba.imagem = carregaImagem("assets/bombaAzulSprite.bmp", renderizador);
+    player1.bomba.posicao.origem = {0, 0, 22, 22};
+    player1.bomba.valorMapa = BOMBA1;
+    player1.valorMapa = PLAYER1;
 
-    Personagem bot;
-    bot.imagem = personagens;
-    bot.posicao.origem = {128, 0, 32, 32};
-    bot.posicao.destino = {440, 520, 40, 40};
+    Personagem player2;
+    player2.imagem = personagens;
+    player2.posicao.origem = {128, 0, 32, 32};
+    //player2.posicao.destino = {440, 520, 40, 40};
+    player2.bomba.imagem = carregaImagem("assets/bombaVermSprite.bmp", renderizador);
+    player2.bomba.posicao.origem = {0, 0, 22, 22};
+    player2.bomba.valorMapa = BOMBA2;
+    player2.valorMapa = PLAYER2;
 
     long int tempoBomba;
+    long int tempoBomba2;
     bool termina = false;
 
     srand(time(NULL));
     while(!termina){
         long int tempoAtual = SDL_GetTicks();
-        imprimeMapa(fogo, bomba, caixa, parede, fundo, player1, bot, renderizador, mapa, mapaBomba);
-        movimentaPersonagem(termina, tempoBomba, player1, mapa, mapaBomba);
-        bombaAnimacao(bomba, tempoBomba, tempoAtual);
-        if(explodeBomba(tempoBomba, mapa, mapaBomba, tempoAtual) == true){
+        imprimeMapa(fogo, caixa, parede, fundo, player1, player2, renderizador, mapa, mapaBomba);
+        movimentaPlayers(termina, tempoBomba, player1, tempoBomba2, player2, mapa, mapaBomba);
+        if(player1.bomba.plantada == true){
+            bombaAnimacao(player1, tempoBomba, tempoAtual);
+            explodeBomba(player1, tempoBomba, tempoAtual, mapa, mapaBomba);
             verificaVidaPlayer(mapa, mapaBomba, player1);
+            verificaVidaPlayer(mapa, mapaBomba, player2);
             if(limpaExplosao(mapaBomba, tempoBomba, tempoAtual) == true){
-                player1.bomba = false;
-                player1.bombas += 1;
+                player1.dano = 0;
+                player2.dano = 0;
+                player1.bomba.plantada = false;
+                player1.bomba.quantidade += 1;
             }
         }
-        movimentaBot(mapa, bot, mapaBomba);
+        if(player2.bomba.plantada == true){
+            bombaAnimacao(player2, tempoBomba2, tempoAtual);
+            explodeBomba(player2, tempoBomba2, tempoAtual, mapa, mapaBomba);
+            verificaVidaPlayer(mapa, mapaBomba, player2);
+            verificaVidaPlayer(mapa, mapaBomba, player1);
+            if(limpaExplosao(mapaBomba, tempoBomba2, tempoAtual) == true){
+                player2.dano = 0;
+                player1.dano = 0;
+                player2.bomba.plantada = false;
+                player2.bomba.quantidade += 1;
+            }
+        }
+        //movimentaBot(mapa, bot);
     }
-    ///PROBLEMA COM A VIDA
+    ///PROBLEMA MOVIMENTAÇÃO BOT
     SDL_DestroyWindow(janela);
     SDL_DestroyRenderer(renderizador);
     SDL_DestroyTexture(fundo.imagem);
     SDL_DestroyTexture(caixa.imagem);
     SDL_DestroyTexture(parede.imagem);
-    SDL_DestroyTexture(bomba.imagem);
+    SDL_DestroyTexture(player1.bomba.imagem);
     SDL_DestroyTexture(personagens);
 
     SDL_Quit();
