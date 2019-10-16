@@ -24,18 +24,18 @@ int main()
                         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
 
     int mapaBomba[13][15] = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
     Componentes fundo, caixa, parede, fogo;
     fundo.imagem = carregaImagem("assets/fundo.bmp", renderizador);
@@ -59,6 +59,7 @@ int main()
     player1.bomba.posicao.origem = {0, 0, 22, 22};
     player1.bomba.valorMapa = BOMBA1;
     player1.valorMapa = PLAYER1;
+    player1.fogoMapa = FOGO1;
 
     Personagem player2;
     player2.imagem = personagens;
@@ -68,6 +69,7 @@ int main()
     player2.bomba.posicao.origem = {0, 0, 22, 22};
     player2.bomba.valorMapa = BOMBA2;
     player2.valorMapa = PLAYER2;
+    player2.fogoMapa = FOGO2;
 
     long int tempoBomba;
     long int tempoBomba2;
@@ -81,9 +83,11 @@ int main()
         if(player1.bomba.plantada == true){
             bombaAnimacao(player1, tempoBomba, tempoAtual);
             explodeBomba(player1, tempoBomba, tempoAtual, mapa, mapaBomba);
+            danoAnimacao(player1, mapa, mapaBomba, tempoAtual, tempoBomba);
+            danoAnimacao(player2, mapa, mapaBomba, tempoAtual, tempoBomba);
             verificaVidaPlayer(mapa, mapaBomba, player1);
             verificaVidaPlayer(mapa, mapaBomba, player2);
-            if(limpaExplosao(mapaBomba, tempoBomba, tempoAtual) == true){
+            if(limpaExplosao(player1, mapaBomba, tempoBomba, tempoAtual) == true){
                 player1.dano = 0;
                 player2.dano = 0;
                 player1.bomba.plantada = false;
@@ -93,17 +97,20 @@ int main()
         if(player2.bomba.plantada == true){
             bombaAnimacao(player2, tempoBomba2, tempoAtual);
             explodeBomba(player2, tempoBomba2, tempoAtual, mapa, mapaBomba);
+            danoAnimacao(player1, mapa, mapaBomba, tempoAtual, tempoBomba2);
+            danoAnimacao(player2, mapa, mapaBomba, tempoAtual, tempoBomba2);
             verificaVidaPlayer(mapa, mapaBomba, player2);
             verificaVidaPlayer(mapa, mapaBomba, player1);
-            if(limpaExplosao(mapaBomba, tempoBomba2, tempoAtual) == true){
+            if(limpaExplosao(player2, mapaBomba, tempoBomba2, tempoAtual) == true){
                 player2.dano = 0;
                 player1.dano = 0;
                 player2.bomba.plantada = false;
                 player2.bomba.quantidade += 1;
             }
         }
-        //movimentaBot(mapa, bot);
+        //movimentaBot(mapa, player2);
     }
+    ///PROBLEMA QUANDO SEGURA TECLAS DIFERENTES, UMA DE CADA PERSONAGEM
     ///PROBLEMA MOVIMENTAÇÃO BOT
     SDL_DestroyWindow(janela);
     SDL_DestroyRenderer(renderizador);
