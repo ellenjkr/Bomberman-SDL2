@@ -27,11 +27,29 @@ void imprimeMapa(Componentes fogo, Componentes caixa, Componentes parede, Compon
                 SDL_RenderCopy(renderizador, caixa.imagem, &caixa.posicao.origem, &caixa.posicao.destino);
             }
             else if(mapa[i][j] == PLAYER1){
-                player1.posicao.destino = {posicaoX, posicaoY, 40, 40};
+                player1.posicao.destino.x = posicaoX;
+                player1.posicao.destino.y = posicaoY;
+                if(mapaBomba[i][j] != FOGO1 and mapaBomba[i][j] != FOGO2){
+                    player1.posicao.destino.h = 40;
+                    player1.posicao.destino.w = 40;
+                }
+                else{
+                    fogo.posicao.destino = {posicaoX, posicaoY, 40, 40};
+                    SDL_RenderCopy(renderizador, fogo.imagem, &fogo.posicao.origem, &fogo.posicao.destino);
+                }
                 SDL_RenderCopy(renderizador, player1.imagem, &player1.posicao.origem, &player1.posicao.destino);
             }
             else if(mapa[i][j] == PLAYER2){
-                player2.posicao.destino = {posicaoX, posicaoY, 40, 40};
+                player2.posicao.destino.x = posicaoX;
+                player2.posicao.destino.y = posicaoY;
+                if(mapaBomba[i][j] != FOGO1 and mapaBomba[i][j] != FOGO2){
+                    player2.posicao.destino.h = 40;
+                    player2.posicao.destino.w = 40;
+                }
+                else{
+                    fogo.posicao.destino = {posicaoX, posicaoY, 40, 40};
+                    SDL_RenderCopy(renderizador, fogo.imagem, &fogo.posicao.origem, &fogo.posicao.destino);
+                }
                 SDL_RenderCopy(renderizador, player2.imagem, &player2.posicao.origem, &player2.posicao.destino);
             }
             else if(mapaBomba[i][j] == BOMBA1){
@@ -42,7 +60,7 @@ void imprimeMapa(Componentes fogo, Componentes caixa, Componentes parede, Compon
                 player2.bomba.posicao.destino = {posicaoX, posicaoY, 40, 40};
                 SDL_RenderCopy(renderizador, player2.bomba.imagem, &player2.bomba.posicao.origem, &player2.bomba.posicao.destino);
             }
-            else if(mapaBomba[i][j] == FOGO){
+            else if(mapaBomba[i][j] == FOGO1 or mapaBomba[i][j] == FOGO2){
                 fogo.posicao.destino = {posicaoX, posicaoY, 40, 40};
                 SDL_RenderCopy(renderizador, fogo.imagem, &fogo.posicao.origem, &fogo.posicao.destino);
             }
@@ -267,11 +285,11 @@ void bombaAnimacao(Personagem &player, long int tempoInicio, long int tempoAtual
     }
 }
 
-void validaExplosao(int mapa[13][15], int mapaBomba[13][15], int indiceX, int indiceY, int adicionalX, int adicionalY){
+void validaExplosao(Personagem &player, int mapa[13][15], int mapaBomba[13][15], int indiceX, int indiceY, int adicionalX, int adicionalY){
     int cont = 1;
     while(cont < 3){
         if(mapa[indiceX + adicionalX * cont][indiceY + adicionalY * cont] != PAREDE){
-            mapaBomba[indiceX + adicionalX * cont][indiceY + adicionalY * cont] = FOGO;
+            mapaBomba[indiceX + adicionalX * cont][indiceY + adicionalY * cont] = player.fogoMapa;
             if(mapa[indiceX + adicionalX * cont][indiceY + adicionalY * cont] == CAIXA){
                 mapa[indiceX + adicionalX * cont][indiceY + adicionalY * cont] = VAZIO;
                 break;
@@ -289,11 +307,62 @@ void explodeBomba(Personagem player, long int tempoInicio, long int tempoAtual, 
         for (int i = 0; i < 13; ++i) {
             for (int j = 0; j < 15; ++j) {
                 if(mapaBomba[i][j] == player.bomba.valorMapa){
-                    mapaBomba[i][j] = FOGO;
-                    validaExplosao(mapa, mapaBomba, i, j, 0, 1); // DIREITA
-                    validaExplosao(mapa, mapaBomba, i, j, 0, -1); // ESQUERDA
-                    validaExplosao(mapa, mapaBomba, i, j, -1, 0); // EM CIMA
-                    validaExplosao(mapa, mapaBomba, i, j, +1, 0); // EMBAIXO
+                    mapaBomba[i][j] = player.fogoMapa;
+                    validaExplosao(player, mapa, mapaBomba, i, j, 0, 1); // DIREITA
+                    validaExplosao(player, mapa, mapaBomba, i, j, 0, -1); // ESQUERDA
+                    validaExplosao(player, mapa, mapaBomba, i, j, -1, 0); // EM CIMA
+                    validaExplosao(player, mapa, mapaBomba, i, j, +1, 0); // EMBAIXO
+                }
+            }
+        }
+    }
+}
+
+void danoAnimacao(Personagem &player, int mapa[13][15], int mapaBomba[13][15], long int tempoAtual, long int tempoInicio){
+    if(tempoAtual - tempoInicio < 2500){
+        for (int i = 0; i < 13; ++i) {
+            for (int j = 0; j < 15; ++j) {
+                if(mapa[i][j] == player.valorMapa and (mapaBomba[i][j] == FOGO1 or mapaBomba[i][j] == FOGO2)){
+                    if(tempoAtual - tempoInicio < 1600){
+                        player.posicao.destino.h = 0;
+                        player.posicao.destino.w = 0;
+                    }
+                    else if(tempoAtual - tempoInicio < 1700){
+                        player.posicao.destino.h = 40;
+                        player.posicao.destino.w = 40;
+                    }
+                    else if(tempoAtual - tempoInicio < 1800){
+                        player.posicao.destino.h = 0;
+                        player.posicao.destino.w = 0;
+                    }
+                    else if(tempoAtual - tempoInicio < 1900){
+                        player.posicao.destino.h = 40;
+                        player.posicao.destino.w = 40;
+                    }
+                    else if(tempoAtual - tempoInicio < 2000){
+                        player.posicao.destino.h = 0;
+                        player.posicao.destino.w = 0;
+                    }
+                    else if(tempoAtual - tempoInicio < 2100){
+                        player.posicao.destino.h = 40;
+                        player.posicao.destino.w = 40;
+                    }
+                    else if(tempoAtual - tempoInicio < 2200){
+                        player.posicao.destino.h = 0;
+                        player.posicao.destino.w = 0;
+                    }
+                    else if(tempoAtual - tempoInicio < 2300){
+                        player.posicao.destino.h = 40;
+                        player.posicao.destino.w = 40;
+                    }
+                    else if(tempoAtual - tempoInicio < 2400){
+                        player.posicao.destino.h = 0;
+                        player.posicao.destino.w = 0;
+                    }
+                    else if(tempoAtual - tempoInicio < 2500){
+                        player.posicao.destino.h = 40;
+                        player.posicao.destino.w = 40;
+                    }
                 }
             }
         }
@@ -303,7 +372,7 @@ void explodeBomba(Personagem player, long int tempoInicio, long int tempoAtual, 
 void verificaVidaPlayer(int mapa[13][15], int mapaBomba[13][15], Personagem &player){
     for (int i = 0; i < 13; ++i) {
         for (int j = 0; j < 15; ++j) {
-            if(mapa[i][j] == player.valorMapa and mapaBomba[i][j] == FOGO){
+            if(mapa[i][j] == player.valorMapa and (mapaBomba[i][j] == FOGO1 or mapaBomba[i][j] == FOGO2)){
                 if(player.vida == 0){
                     mapa[i][j] = VAZIO;
                 }
@@ -314,16 +383,16 @@ void verificaVidaPlayer(int mapa[13][15], int mapaBomba[13][15], Personagem &pla
         }
     }
     if(player.dano == 1){
-        player.vida -= 1;
+    player.vida -= 1;
     }
 }
 
-bool limpaExplosao(int mapaBomba[13][15], long int tempoInicio, long int tempoAtual){
+bool limpaExplosao(Personagem player, int mapaBomba[13][15], long int tempoInicio, long int tempoAtual){
     if(tempoAtual - tempoInicio > 2500){
         for (int i = 0; i < 13; ++i) {
             for (int j = 0; j < 15; ++j) {
 
-                if(mapaBomba[i][j] == FOGO){
+                if(mapaBomba[i][j] == player.fogoMapa){
                     mapaBomba[i][j] = VAZIO;
                 }
             }
