@@ -30,6 +30,7 @@ struct Personagem{
     int vida = 3;
     int dano = 0;
     int valorMapa;
+    int fogoMapa;
 };
 
 struct Componentes{
@@ -45,7 +46,8 @@ enum Itens{
     PLAYER2,
     BOMBA1,
     BOMBA2,
-    FOGO
+    FOGO1,
+    FOGO2
 };
 
 SDL_Texture* carregaImagem(const char *imagem, SDL_Renderer *renderizador);
@@ -62,12 +64,14 @@ void movimentaBot(int mapa[13][15], Personagem &bot);
 
 void bombaAnimacao(Personagem &player, long int tempoInicio, long int tempoAtual);
 
-void validaExplosao(int mapa[13][15], int mapaBomba[13][15], int indiceX, int indiceY, int adicionalX, int adicionalY);
+void validaExplosao(Personagem &player, int mapa[13][15], int mapaBomba[13][15], int indiceX, int indiceY, int adicionalX, int adicionalY);
 
 void explodeBomba(Personagem player, long int tempoInicio, long int tempoAtual, int mapa[13][15], int mapaBomba[13][15]);
 
+void danoAnimacao(Personagem &player, int mapa[13][15], int mapaBomba[13][15], long int tempoAtual, long int tempoInicio);
+
 void verificaVidaPlayer(int mapa[13][15], int mapaBomba[13][15], Personagem &player);
 
-bool limpaExplosao(int mapaBomba[13][15], long int tempoInicio, long int tempoAtual);
+bool limpaExplosao(Personagem player, int mapaBomba[13][15], long int tempoInicio, long int tempoAtual);
 
 #endif // BOMBERMAN_H
