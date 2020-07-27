@@ -34,7 +34,20 @@ Personagem criaPlayer2(Personagem player2, SDL_Renderer *renderizador, SDL_Textu
     return player2;
 }
 
-void criaComponentes(SDL_Renderer *renderizador, Componentes &fundo, Componentes &caixa, Componentes &parede, Componentes &fogo, Componentes &botaoHome, Componentes &botaoRestart){
+void criaComponentes(SDL_Renderer *renderizador, Componentes &menuPrincipal, Componentes &instrucoes, Componentes &menuJogar, Componentes &fundo, Componentes &caixa, Componentes &parede, Componentes &fogo, Componentes &botaoHome, Componentes &botaoRestart){
+
+    menuPrincipal.imagem = carregaImagem("assets/menu.bmp", renderizador);
+    menuPrincipal.posicao.origem = {0, 0, 600, 600};
+    menuPrincipal.posicao.destino = {0, 0, 600, 600};
+
+    instrucoes.imagem = carregaImagem("assets/instrucoes.bmp", renderizador);
+    instrucoes.posicao.origem = {0, 0, 600, 600};
+    instrucoes.posicao.destino = {0, 0, 600, 600};
+
+    menuJogar.imagem = carregaImagem("assets/menuJogar.bmp", renderizador);
+    menuJogar.posicao.origem = {0, 0, 600, 600};
+    menuJogar.posicao.destino = {0, 0, 600, 600};
+
     fundo.imagem = carregaImagem("assets/fundo.bmp", renderizador);
     fundo.posicao.origem = {0, 0, 600, 600};
     fundo.posicao.destino = {0, 0, 600, 600};
@@ -55,6 +68,243 @@ void criaComponentes(SDL_Renderer *renderizador, Componentes &fundo, Componentes
     botaoHome.imagem = carregaImagem("assets/home.bmp", renderizador);
     botaoHome.posicao.origem = {0, 0, 106, 113};
     botaoHome.posicao.destino = {303, 545, 35, 35};
+}
+
+void criaFim(SDL_Renderer *renderizador, Componentes &empate, Componentes &player1Vence, Componentes &player2Vence){
+    empate.imagem = carregaImagem("assets/empate.bmp", renderizador);
+    empate.posicao.origem = {0, 0, 600, 600};
+    empate.posicao.destino = {0, 0, 600, 600};
+
+    player1Vence.imagem = carregaImagem("assets/player1Vence.bmp", renderizador);
+    player1Vence.posicao.origem = {0, 0, 600, 600};
+    player1Vence.posicao.destino = {0, 0, 600, 600};
+
+    player2Vence.imagem = carregaImagem("assets/player2Vence.bmp", renderizador);
+    player2Vence.posicao.origem = {0, 0, 600, 600};
+    player2Vence.posicao.destino = {0, 0, 600, 600};
+
+
+}
+
+int escolheMenuPrincipal(Componentes &menu, SDL_Cursor *cursor, bool &termina){
+	int escolha = -1;
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+            case SDL_MOUSEMOTION:{
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+                if(x > 150 and x < 455 and y > 240 and y < 325){
+                    cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+                    SDL_SetCursor(cursor);
+                    menu.posicao.origem.x = 600;
+                }
+                else if(x > 150 and x < 430 and y > 350 and y < 450){
+                    cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+                    SDL_SetCursor(cursor);
+                    menu.posicao.origem.x = 1200;
+                }
+                else if(x > 200 and x < 390 and y > 460 and y < 555){
+                    cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+                    SDL_SetCursor(cursor);
+                    menu.posicao.origem.x = 1800;
+                }
+                else{
+                    cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+                    SDL_SetCursor(cursor);
+                    menu.posicao.origem.x = 0;
+                }
+                break;
+            }
+            case SDL_MOUSEBUTTONDOWN:{
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+                if(x > 150 and x < 455 and y > 240 and y < 325){
+                    escolha = INSTRUCOES;
+                }
+                else if(x > 150 and x < 430 and y > 350 and y < 450){
+                    escolha = JOGAR;
+                }
+                else if(x > 200 and x < 390 and y > 460 and y < 555){
+                    escolha = SAIR;
+                }
+                break;
+            }
+            case SDL_QUIT:{
+                termina = true;
+                break;
+            }
+        }
+    }
+    return escolha;
+}
+
+void carregaInstrucoes(Componentes &instrucoes, bool &abreInstrucoes, bool &abreMenuPrincipal, SDL_Cursor *cursor, bool &termina){
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+        case SDL_MOUSEMOTION:{
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            if(x > 223 and x < 375 and y > 480 and y < 533){
+                cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+                SDL_SetCursor(cursor);
+                instrucoes.posicao.origem.x = 600;
+            }
+            else{
+                cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+                SDL_SetCursor(cursor);
+                instrucoes.posicao.origem.x = 0;
+            }
+            break;
+        }
+        case SDL_MOUSEBUTTONDOWN: {
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            if(x > 223 and x < 375 and y > 480 and y < 533){
+                abreInstrucoes = false;
+                abreMenuPrincipal = true;
+            }
+            break;
+
+        }
+        case SDL_QUIT:{
+            termina = true;
+            break;
+        }
+        default:
+            break;
+        }
+    }
+}
+
+void escolheMenuJogar(Componentes &menuJogar, bool &abreMenuPrincipal, bool &abreMenuJogar, bool &jogaJogo, int &jogo, SDL_Cursor *cursor, bool &termina){
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+        case SDL_MOUSEMOTION:{
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            if(x > 129 and x < 471 and y > 249 and y < 312){
+                cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+                SDL_SetCursor(cursor);
+                menuJogar.posicao.origem.x = 600;
+            }
+            else if(x > 161 and x < 438 and y > 360 and y < 422){
+                cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+                SDL_SetCursor(cursor);
+                menuJogar.posicao.origem.x = 1200;
+            }
+            else if(x > 221 and x < 376 and y > 480 and y < 533){
+                cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+                SDL_SetCursor(cursor);
+                menuJogar.posicao.origem.x = 1800;
+            }
+            else{
+                cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+                SDL_SetCursor(cursor);
+                menuJogar.posicao.origem.x = 0;
+            }
+            break;
+        }
+        case SDL_MOUSEBUTTONDOWN: {
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            if(x > 129 and x < 471 and y > 249 and y < 312){
+                abreMenuJogar = false;
+                jogaJogo = true;
+                jogo = SINGLEPLAYER;
+            }
+            else if(x > 161 and x < 438 and y > 360 and y < 422){
+                jogaJogo = true;
+                abreMenuJogar = false;
+                jogo = MULTIPLAYER;
+            }
+            else if(x > 221 and x < 376 and y > 480 and y < 533){
+                abreMenuJogar = false;
+                abreMenuPrincipal = true;
+            }
+            break;
+
+        }
+        case SDL_QUIT:{
+            termina = true;
+            break;
+        }
+        default:
+            break;
+        }
+    }
+}
+
+void resetMultiplayer(int mapa[13][15], int mapaBomba[13][15], Personagem &player1, Personagem &player2){
+
+    int mapaOriginal[13][15] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                                {1, 3, 0, 0, 2, 0, 0, 2, 2, 2, 2, 0, 0, 0, 1},
+                                {1, 0, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 0, 1},
+                                {1, 0, 2, 0, 2, 0, 0, 2, 2, 0, 2, 2, 0, 0, 1},
+                                {1, 0, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1},
+                                {1, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 1},
+                                {1, 2, 1, 2 ,1, 2, 1, 2, 1, 0, 1, 2, 1, 2, 1},
+                                {1, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1},
+                                {1, 2, 1, 2, 1, 2, 1, 0, 1, 2, 1, 2, 1, 2, 1},
+                                {1, 0, 2, 0, 2, 2, 0, 2, 0, 2, 0, 0, 0, 0, 1},
+                                {1, 0, 1, 2, 1, 0, 1, 0, 1, 2, 1, 2, 1, 0, 1},
+                                {1, 0, 0, 0, 2, 2, 2, 2, 0, 2, 2, 0, 0, 4, 1},
+                                {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+
+    for (int i = 0; i < 13; ++i) {
+        for (int j = 0; j < 15; ++j) {
+            mapa[i][j] = mapaOriginal[i][j];
+            mapaBomba[i][j] = 0;
+        }
+    }
+
+    player1.vida = 3;
+    player1.bomba.plantada = false;
+    player1.bomba.quantidade = 1;
+    player1.posicao.origem = {32, 0, 32, 32};
+
+    player2.vida = 3;
+    player2.bomba.plantada = false;
+    player2.bomba.quantidade = 1;
+    player2.posicao.origem = {128, 0, 32, 32};
+
+}
+
+void resetSinglePlayer(int mapaSinglePlayer[13][15], int mapaBomba[13][15], Personagem &player1, Bot &bot){
+
+    int mapaSinglePlayerOriginal[13][15] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                                            {1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                                            {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
+                                            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                                            {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
+                                            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                                            {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
+                                            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                                            {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
+                                            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+                                            {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
+                                            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1},
+                                            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+
+    for (int i = 0; i < 13; ++i) {
+        for (int j = 0; j < 15; ++j) {
+            mapaSinglePlayer[i][j] = mapaSinglePlayerOriginal[i][j];
+            mapaBomba[i][j] = 0;
+        }
+    }
+
+    player1.vida = 3;
+    player1.bomba.plantada = false;
+    player1.bomba.quantidade = 1;
+    player1.posicao.origem = {32, 0, 32, 32};
+
+    bot.personagem.vida = 3;
+    bot.personagem.bomba.plantada = false;
+    bot.personagem.bomba.quantidade = 1;
+    bot.personagem.posicao.origem = {128, 0, 32, 32};
+    bot.personagem.vida = 3;
 }
 
 void imprimeMapa(Componentes fogo, Componentes caixa, Componentes parede, Componentes fundo, Personagem player1, Personagem player2, SDL_Renderer *renderizador, int mapa[13][15], int mapaBomba[13][15]){
@@ -131,7 +381,7 @@ void plantaBomba(Personagem &player, int mapaBomba[13][15], int indiceX, int ind
     }
 }
 
-void movimentaPlayers(bool &termina, Personagem &player, Personagem &player2, int mapa[13][15], int mapaBomba[13][15]){
+void movimentaPlayers(bool &termina, Personagem &player, Personagem &player2, int mapa[13][15], int mapaBomba[13][15], bool &abreMenuPrincipal, bool &jogaJogo, SDL_Cursor *cursor){
     SDL_Event evento;
     int indiceX = 0;
     int indiceY = 0;
@@ -156,6 +406,37 @@ void movimentaPlayers(bool &termina, Personagem &player, Personagem &player2, in
     while(SDL_PollEvent(&evento)){
         if(evento.type == SDL_QUIT){
             termina = true;
+        }
+        if(evento.type == SDL_MOUSEMOTION){
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            if(x > 303 and x < 338 and y > 545 and y < 580){
+                cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+                SDL_SetCursor(cursor);
+            }
+            else if(x > 267 and x < 297 and y > 545 and y < 580){
+                cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+                SDL_SetCursor(cursor);
+            }
+            else{
+                cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+                SDL_SetCursor(cursor);
+            }
+        }
+        if(evento.type == SDL_MOUSEBUTTONDOWN){
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            if(x > 303 and x < 338 and y > 545 and y < 580){
+                cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+                SDL_SetCursor(cursor);
+                jogaJogo = false;
+                abreMenuPrincipal = true;
+            }
+            else if(x > 267 and x < 297 and y > 545 and y < 580){
+                cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+                SDL_SetCursor(cursor);
+                resetMultiplayer(mapa, mapaBomba, player, player2);
+            }
         }
         else if(evento.type == SDL_KEYUP){
             if(evento.key.keysym.sym == SDLK_SPACE){
@@ -208,36 +489,151 @@ void movimentaPlayers(bool &termina, Personagem &player, Personagem &player2, in
     }
 }
 
-void movimentaBot(int mapa[13][15], Personagem &bot){
-    int direcao = rand()%4;
-    int passos = rand() % 15 + 3;
-    int cont = 1;
-    while(cont < passos){
-        for (int i = 0; i < 13; ++i) {
-            for (int j = 0; j < 15; ++j) {
-                if(mapa[i][j] == PLAYER2){
-                    if(direcao == 0){ // DIREITA
-                        validaMovimento(mapa, i, j, 0, 1, PLAYER2);
-                        bot.posicao.origem = {128, 0, 32, 32};
-                    }
-                    else if(direcao == 1){ // ESQUERDA
-                        validaMovimento(mapa, i, j, 0, -1, PLAYER2);
-                        bot.posicao.origem = {128, 32, 32, 32};
-                    }
-                    else if(direcao == 2){ // CIMA
-                        validaMovimento(mapa, i, j, -1, 0, PLAYER2);
-                        bot.posicao.origem = {128, 96, 32, 32};
-                    }
-                    else if(direcao == 3){ // BAIXO
-                        validaMovimento(mapa, i, j, 1, 0, PLAYER2);
-                        bot.posicao.origem = {128, 64, 32, 32};
-                    }
-                }
+void movimentaPlayer1(bool &termina, Personagem &player, Bot &bot, int mapa[13][15], int mapaBomba[13][15], bool &abreMenuPrincipal, bool &jogaJogo, SDL_Cursor *cursor){
+    SDL_Event evento;
+    int indiceX = 0;
+    int indiceY = 0;
+    for (int i = 0; i < 13; ++i) {
+        for (int j = 0; j < 15; ++j) {
+            if(mapa[i][j] == PLAYER1){
+                indiceX = i;
+                indiceY = j;
             }
         }
-        cont++;
     }
+    while(SDL_PollEvent(&evento)){
+        if(evento.type == SDL_QUIT){
+            termina = true;
+        }
+        if(evento.type == SDL_MOUSEMOTION){
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            if(x > 303 and x < 338 and y > 545 and y < 580){
+                cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+                SDL_SetCursor(cursor);
+            }
+            else if(x > 267 and x < 297 and y > 545 and y < 580){
+                cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+                SDL_SetCursor(cursor);
+            }
+            else{
+                cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+                SDL_SetCursor(cursor);
+            }
+        }
+        if(evento.type == SDL_MOUSEBUTTONDOWN){
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            if(x > 303 and x < 338 and y > 545 and y < 580){
+                cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+                SDL_SetCursor(cursor);
+                jogaJogo = false;
+                abreMenuPrincipal = true;
+            }
+            else if(x > 267 and x < 297 and y > 545 and y < 580){
+                cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+                SDL_SetCursor(cursor);
+                resetSinglePlayer(mapa, mapaBomba, player, bot);
+            }
+            else{
+                cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+                SDL_SetCursor(cursor);
+            }
+        }
+        else if(evento.type == SDL_KEYUP){
+            if(evento.key.keysym.sym == SDLK_SPACE){
+                plantaBomba(player, mapaBomba, indiceX, indiceY);
+            }
+            if(evento.key.keysym.sym == SDLK_s){
+                player.posicao.origem = {32, 0, 32, 32};
+                validaMovimento(mapa, indiceX, indiceY, 1, 0, PLAYER1);
+                break;
+            }
+            else if(evento.key.keysym.sym == SDLK_w){
+                player.posicao.origem = {32, 96, 32, 32};
+                validaMovimento(mapa, indiceX, indiceY, -1, 0, PLAYER1);
+                break;
+            }
+            else if(evento.key.keysym.sym == SDLK_a){
+                player.posicao.origem = {32, 32, 32, 32};
+                validaMovimento(mapa, indiceX, indiceY, 0, -1, PLAYER1);
+                break;
+            }
+            else if(evento.key.keysym.sym == SDLK_d){
+                player.posicao.origem = {32, 64, 32, 32};
+                validaMovimento(mapa, indiceX, indiceY, 0, 1, PLAYER1);
+                break;
+            }
+        }
+    }
+}
 
+void movimentaBot(int mapa[13][15], Bot &bot, int frameCounter){
+    if(bot.quantidadePassos == 0){
+        bot.direcao = rand()%4;
+        bot.quantidadePassos = rand() % 5;
+    }
+    int indiceX;
+    int indiceY;
+    for (int i = 0; i < 13; ++i) {
+        for (int j = 0; j < 15; ++j) {
+            if(mapa[i][j] == PLAYER2){
+                indiceX = i;
+                indiceY = j;
+            }
+        }
+    }
+    if(frameCounter % 10 == 0){
+        if(bot.direcao == 0){ // DIREITA
+            if(mapa[indiceX][indiceY+1] == VAZIO){
+                validaMovimento(mapa, indiceX, indiceY, 0, 1, PLAYER2);
+                bot.personagem.posicao.origem = {128, 64, 32, 32};
+                bot.passosAndados++;
+            }
+            else{
+                bot.passosAndados = 0;
+                bot.quantidadePassos = 0;
+            }
+        }
+        else if(bot.direcao == 1){ // ESQUERDA
+            if(mapa[indiceX][indiceY-1] == VAZIO){
+                validaMovimento(mapa, indiceX, indiceY, 0, -1, PLAYER2);
+                bot.personagem.posicao.origem = {128, 32, 32, 32};
+                bot.passosAndados++;
+            }
+            else{
+                bot.passosAndados = 0;
+                bot.quantidadePassos = 0;
+            }
+        }
+        else if(bot.direcao == 2){ // CIMA
+            if(mapa[indiceX-1][indiceY] == VAZIO){
+                validaMovimento(mapa, indiceX, indiceY, -1, 0, PLAYER2);
+                bot.personagem.posicao.origem = {128, 96, 32, 32};
+                bot.passosAndados++;
+            }
+            else{
+                bot.passosAndados = 0;
+                bot.quantidadePassos = 0;
+            }
+        }
+        else if(bot.direcao == 3){ // BAIXO
+            if(mapa[indiceX+1][indiceY] == VAZIO){
+                validaMovimento(mapa, indiceX, indiceY, 1, 0, PLAYER2);
+                bot.personagem.posicao.origem = {128, 0, 32, 32};
+                bot.passosAndados++;
+            }
+            else{
+                bot.passosAndados = 0;
+                bot.quantidadePassos = 0;
+            }
+
+        }
+    }
+    if(bot.passosAndados == bot.quantidadePassos){
+        bot.passosAndados = 0;
+        bot.quantidadePassos = 0;
+    }
 }
 
 void bombaAnimacao(Personagem &player, long int tempoAtual){
@@ -457,5 +853,64 @@ void explodeBomba2(Personagem &player2, Personagem &player1, int mapa[13][15], i
         player1.danoBomba2 = false;
         player2.bomba.plantada = false;
         player2.bomba.quantidade += 1;
+    }
+}
+
+bool verificaFimDeJogo(Personagem &player1, Personagem &player2){
+    if(player1.vida == 0 or player2.vida == 0){
+        return true;
+    }
+    return false;
+}
+
+void imprimeFimDeJogo(Personagem &player1, Personagem &player2, Componentes &empate, Componentes &player1Vence, Componentes &player2Vence, SDL_Renderer *renderizador, SDL_Cursor *cursor, bool &abreMenuPrincipal, bool &jogaJogo, bool &termina){
+    if(player1.vida == 0 and player2.vida == 0){
+        SDL_RenderCopy(renderizador, empate.imagem, &empate.posicao.origem, &empate.posicao.destino);
+    }
+    else if(player1.vida == 0){
+        SDL_RenderCopy(renderizador, player2Vence.imagem, &player1Vence.posicao.origem, &player1Vence.posicao.destino);
+    }
+    else if(player2.vida == 0){
+        SDL_RenderCopy(renderizador, player1Vence.imagem, &player2Vence.posicao.origem, &player2Vence.posicao.destino);
+    }
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+        case SDL_MOUSEMOTION:{
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            if(x > 223 and x < 375 and y > 480 and y < 533){
+                cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+                SDL_SetCursor(cursor);
+                empate.posicao.origem.x = 600;
+                player1Vence.posicao.origem.x = 600;
+                player2Vence.posicao.origem.x = 600;
+            }
+            else{
+                cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+                SDL_SetCursor(cursor);
+                empate.posicao.origem.x = 0;
+                player1Vence.posicao.origem.x = 0;
+                player2Vence.posicao.origem.x = 0;
+            }
+            break;
+        }
+        case SDL_MOUSEBUTTONDOWN: {
+            int x, y;
+            SDL_GetMouseState(&x, &y);
+            if(x > 178 and x < 421 and y > 473 and y < 515){
+                jogaJogo = false;
+                abreMenuPrincipal = true;
+            }
+            break;
+
+        }
+        case SDL_QUIT:{
+            termina = true;
+            break;
+        }
+        default:
+            break;
+        }
     }
 }
